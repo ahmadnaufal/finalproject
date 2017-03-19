@@ -1,0 +1,14 @@
+{
+	"sentence_parser" : {
+		"from" 	: "(?<!\\w\\.\\w.)(?<![A-Z][a-z]\\.)(?<=\\.|\\?)\\s",
+		"to"	: "\n"
+	},
+	"punctuations_cleaner" : {
+		"from"	: "[^\\w]",
+		"to"	: ""
+	},
+	"number_converter" : {
+		"from"	: "^\\d+\\s|\\s\\d+\\s|\\s\\d+$",
+		"to"	: " <number> "
+	}	
+}

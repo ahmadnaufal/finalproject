@@ -1,3 +1,5 @@
 src/exploration/*
 lib/*
 resource/*
+output/*
+*.pyc
