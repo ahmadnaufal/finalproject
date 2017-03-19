@@ -1,8 +1,8 @@
 import csv
 import sys
 
-sys.path.append("lib/InaNLP.jar")
-sys.path.append("lib/ipostagger.jar")
+sys.path.append("../../lib/InaNLP.jar")
+sys.path.append("../../lib/ipostagger.jar")
 
 from IndonesianNLP import IndonesianPOSTagger
 from IndonesianNLP import IndonesianSentenceFormalization
