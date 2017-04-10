@@ -5,6 +5,7 @@ from sklearn import metrics
 
 from FeatureExtractor import FeatureExtractor 
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 class Classifier(object):
@@ -22,6 +23,7 @@ class Classifier(object):
 	def test(self, dataset):
 		predictions = self.classifier.predict(dataset)
 		return predictions
+
 
 def main(filename):
 	fe = FeatureExtractor("tfidf", filename)
@@ -42,6 +44,12 @@ def main(filename):
 	# 	print "%r => %s" % (doc, cat)
 
 	print "TFIDF accuracy score: %f" % (metrics.accuracy_score(fe.raw_labels, preds, normalize=True))
+	f1_pos = metrics.f1_score(fe.raw_labels, preds, pos_label='positive')
+	f1_neg = metrics.f1_score(fe.raw_labels, preds, pos_label='negative')
+	print "TFIDF F1 score: %f" % (f1_pos)
+	print "TFIDF F1 negative score: %f" % (f1_neg)
+
+	print "\nAverage F-measure: %f" % ((f1_pos + f1_neg)/2) 
 
 	# bag of words
 	clf = Classifier(models="multinomial")
@@ -49,6 +57,7 @@ def main(filename):
 	preds = clf.test(bow)
 
 	print "BOW accuracy score: %f" % (metrics.accuracy_score(fe.raw_labels, preds, normalize=True))
+	print "BOW F1 score: %f" % (metrics.f1_score(fe.raw_labels, preds, pos_label='positive'))
 
 	print "\n** Using SVM **"
 
@@ -69,7 +78,13 @@ def main(filename):
 
 	print "BOW accuracy score: %f" % (metrics.accuracy_score(fe.raw_labels, preds, normalize=True))
 
+	X_train, X_test, y_train, y_test = train_test_split(bow, fe.raw_labels, test_size=0.4, random_state=0)
+	clf = Classifier(models="svm")
+	clf.classify(X_train, y_train)
+	preds = clf.test(X_test)
 
+	print "Using 60/40, BOW accuracy: %f" % (metrics.accuracy_score(y_test, preds, normalize=True))
+	print "Using 60/40, BOW F1: %f" % (metrics.f1_score(y_test, preds, pos_label='positive'))
 
 if __name__ == '__main__':
 	main(sys.argv[1])

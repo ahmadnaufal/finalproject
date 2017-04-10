@@ -28,7 +28,9 @@ class IndonesianPreprocessorWithNLP():
         with open(self.infile, "rb") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                res = {'content':self.convert_numbers(self.formalize_sentence(row["content"])), 'polarity':row['polarity']} 
+                sentence = self.formalize_sentence(row["content"])
+                sentence = self.convert_numbers(sentence)
+                res = {'content':sentence, 'polarity':row['polarity']} 
                 preprocessed.append(res)
 
         with open(ofile, "wb") as csvfile:
@@ -41,10 +43,22 @@ class IndonesianPreprocessorWithNLP():
     				'polarity' : rows['polarity']
     			})
 
+    def extract_sentences_to_file(self, ofile):
+        with open(ofile, "wb") as outfile:
+            with open(self.infile, "rb") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    line_t = re.sub("(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s", "\n", row["content"])
+                    outfile.write(line_t)
+
 
 def main(infile, outfile):
-	ip = IndonesianPreprocessorWithNLP(infile)
-	ip.formalizefile(ofile=outfile)
+    ip = IndonesianPreprocessorWithNLP(infile)
+    # ip.extract_sentences_to_file(ofile=outfile)
+    ip.formalizefile(ofile=outfile)
+
+    ipt = IndonesianPreprocessorWithNLP(outfile)
+    ipt.extract_sentences_to_file(ofile="sentences.txt")
 
 if __name__ == '__main__':
 	main(sys.argv[1], sys.argv[2])

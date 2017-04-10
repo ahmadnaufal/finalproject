@@ -1,4 +1,5 @@
 import gensim
+import sys
 
 from SentenceIterator import SentenceIterator
 
@@ -23,5 +24,25 @@ class WordEmbeddingGenerator(object):
         else:
             pass
 
-    def save_model(self, filename):
-        self.model.save(filename)
+    def save_model(self, filename, binary=True):
+        if binary:
+            self.model.save(filename)
+        else:
+            self.model.save_word2vec_format(filename, binary=False)
+
+    def load_model(self, filename, binary=True):
+        if binary:
+            self.model = gensim.models.Word2Vec.load(filename)
+        else:
+            self.model = gensim.models.Word2Vec.load_word2vec_format(filename, binary=False)
+
+def main(infile):
+    we = WordEmbeddingGenerator(infile)
+    we.create_word_embedding(type="w2v")
+    we.save_model("w2v_model", binary=False)
+
+    # we.load_model("w2v_model")
+    # print we.model.wv.most_similar(positive=['enak'])
+
+if __name__ == '__main__':
+    main(sys.argv[1])

@@ -6,8 +6,8 @@ class Review(object):
 		super(Review, self).__init__()
 		self.content = content
 		self.polarity = polarity
-		num_review += 1
-		self.id = num_review
+		Review.num_review += 1
+		self.id = Review.num_review
 
-	def to_string():
-		return self.id + "\t" + Review.uid_placeholder + "\t" + self.polarity + "\t" + self.content
+	def to_string(self):
+		return str(self.id) + "\t" + str(Review.uid_placeholder) + "\t" + self.polarity + "\t" + self.content

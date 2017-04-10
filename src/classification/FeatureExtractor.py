@@ -47,8 +47,8 @@ class FeatureExtractor(object):
 					self.labels.append(rows[column_name])
 
 	def build_bag(self):
-		count_vect = CountVectorizer()
-		bag = count_vect.fit_transform(self.dataset)
+		self.count_vect = CountVectorizer()
+		bag = self.count_vect.fit_transform(self.dataset)
 		print "Bag dimensions: " + str(bag.shape)
 		return bag
 
@@ -59,12 +59,26 @@ class FeatureExtractor(object):
 		print "TFIDF bag dimensions: " + str(tfidf.shape)
 		return tfidf
 
+	def get_vocab_file(self):
+		if self.count_vect is not None:
+			return self.count_vect.get_feature_names()
+		else:
+			return []
+
+	def export_vocab_file(self, outfile):
+		with open(outfile, "wb") as vocab_file:
+			res = self.get_vocab_file()
+			for row in res:
+				vocab_file.write(row + "\n")
+
+
 def main(filename):
 	fe = FeatureExtractor("tfidf", filename)
 	fe.load_dataset()
 	fe.load_labels()
 
 	bag = fe.build_bag()
+	fe.export_vocab_file("vocab.txt")
 
 if __name__ == '__main__':
 	main(sys.argv[1])
