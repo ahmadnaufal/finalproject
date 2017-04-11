@@ -1,5 +1,6 @@
 import csv
 import sys
+import random
 
 from Review import Review
 
@@ -26,6 +27,15 @@ class DatasetReview():
 					self.label_values.append(rows[self.column_label])
 
 		return infile
+
+	def dataset_from_array(self, dataset):
+		n_dataset = DatasetReview()
+		n_dataset.dataset = dataset
+		n_dataset.field_names = self.field_names
+		n_dataset.label_values = self.label_values
+		n_dataset.column_label = self.column_label
+
+		return n_dataset
 
 	def get_dataset_size(self):
 		return len(self.dataset)
@@ -67,8 +77,58 @@ class DatasetReview():
 
 		return outfile
 
+	def export_to_csv(self, outfile):
+		with open(outfile, "wb") as csvfile:
+			writer = csv.DictWriter(csvfile, fieldnames=self.field_names)
+			writer.writeheader()
+			for data in self.dataset:
+				writer.writerow({
+					'content' : data.content,
+					'polarity' : data.polarity
+				})
+
+		return outfile
+
 	def get_data_label_size(self, label):
 		return sum(1 for x in self.dataset if x.polarity == label)
+
+	def get_data_label(self, label):
+		return [data for data in self.dataset if data.polarity == label]
+
+	def get_sample_to_minority(self):
+		if not self.dataset:
+			return []
+		else:
+			pos_sample = self.get_data_label_size("positive")
+			neg_sample = self.get_data_label_size("negative")
+
+			print "%d | %d" % (pos_sample, neg_sample)
+			t_dataset = []
+			if pos_sample > neg_sample:
+				temp = self.get_data_label("positive")
+				for x in xrange(0,neg_sample):
+					idx = random.randint(0, len(temp) - 1)
+					t_dataset.append(temp[idx])
+
+				# append the minority instance
+				t_dataset.extend(self.get_data_label("negative"))
+				m_dts = self.dataset_from_array(t_dataset)
+				return m_dts
+
+			elif neg_sample > pos_sample:
+				temp = self.get_data_label("negative")
+				for x in xrange(1,pos_sample):
+					idx = random.randint(0, len(temp) - 1)
+					t_dataset.append(temp[idx])
+
+				# append the minority instance
+				t_dataset.extend(self.get_data_label("positive"))
+				m_dts = self.dataset_from_array(t_dataset)
+				return m_dts
+
+			else:
+				return self
+
 
 def main(infile):
 	dataset = DatasetReview()
@@ -78,6 +138,11 @@ def main(infile):
 
 	print "Positive instances: %d" % (dataset.get_data_label_size("positive"))
 	print "Negative instances: %d" % (dataset.get_data_label_size("negative"))
+
+	t_dataset = dataset.get_sample_to_minority()
+	print "Positive instances: %d" % (t_dataset.get_data_label_size("positive"))
+	print "Negative instances: %d" % (t_dataset.get_data_label_size("negative"))
+	t_dataset.export_to_csv("sample.csv")
 
 if __name__ == '__main__':
 	main(sys.argv[1])

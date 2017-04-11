@@ -24,6 +24,9 @@ class Classifier(object):
 		predictions = self.classifier.predict(dataset)
 		return predictions
 
+	def do_evaluate(self, test_set):
+		predictions = self.test(test_set)
+		# accuracy_score = metrics.accuracy_score()
 
 def main(filename):
 	fe = FeatureExtractor("tfidf", filename)
