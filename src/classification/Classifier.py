@@ -1,9 +1,8 @@
-import sklearn
 import sys
 
 from sklearn import metrics
 
-from FeatureExtractor import FeatureExtractor 
+from FeatureExtractor import FeatureExtractor
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
