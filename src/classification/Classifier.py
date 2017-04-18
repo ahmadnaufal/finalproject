@@ -11,21 +11,44 @@ class Classifier(object):
 	"""docstring for Classifier"""
 	def __init__(self, models="multinomial"):
 		super(Classifier, self).__init__()
+		self.models = models
 		if models == "multinomial":
 			self.classifier = MultinomialNB()
 		elif models == "svm":
 			self.classifier = SVC()
 
-	def classify(self, dataset, labels):
-		self.classifier = self.classifier.fit(dataset, labels)
+	def classify(self, dataset):
+		contents = dataset.get_contents()
+		labels = dataset.get_labels()
+		return self.classify_raw(contents, labels)
 
+	def classify_raw(self, dataset, labels):
+		self.classifier = self.classifier.fit(dataset, labels)
+		return self.classifier
+
+	"""Return predictions for dataset using Dataset class"""
 	def test(self, dataset):
+		contents = dataset.get_contents()
+		return self.test_raw(contents)
+
+	"""Return predictions for dataset using raw array dataset"""
+	def test_raw(self, dataset):
 		predictions = self.classifier.predict(dataset)
 		return predictions
 
-	def do_evaluate(self, test_set):
+	def get_classifier_type(self):
+		if self.models == "multinomial":
+			return "Multinomial Naive-Bayes"
+		elif self.models == "svm":
+			return "Support Vector Machine"
+		else:
+			return "Unknown classifier"
+
+	def do_evaluate(self, dataset_train, dataset_test):
 		predictions = self.test(test_set)
 		# accuracy_score = metrics.accuracy_score()
+		# count f1-score
+		# count accuracy
 
 def main(filename):
 	fe = FeatureExtractor("tfidf", filename)

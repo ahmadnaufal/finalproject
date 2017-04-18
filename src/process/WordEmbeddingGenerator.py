@@ -8,7 +8,7 @@ class WordEmbeddingGenerator(object):
     Create a new word embedding generator
     we can use the wikipedia to sentences
     """
-    def __init__(self, path_to_corpus):
+    def __init__(self, path_to_corpus=""):
         super(WordEmbeddingGenerator, self).__init__()
         self.file_corpus = path_to_corpus
 

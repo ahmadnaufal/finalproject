@@ -1,5 +1,5 @@
 from DocumentCombiner import DocumentCombiner
 from IndonesianPreprocessor import IndonesianPreprocessor
-from IndonesianPreprocessorWithNLP import IndonesianPreprocessorWithNLP
+# from IndonesianPreprocessorWithNLP import IndonesianPreprocessorWithNLP
 from SentenceIterator import SentenceIterator
 from WordEmbeddingGenerator import WordEmbeddingGenerator

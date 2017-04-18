@@ -3,6 +3,7 @@ import sys
 import random
 
 from Review import Review
+from sklearn.model_selection import train_test_split
 
 class DatasetReview():
 	"""docstring for Dataset"""
@@ -36,6 +37,14 @@ class DatasetReview():
 		n_dataset.column_label = self.column_label
 
 		return n_dataset
+
+	def dataset_from_contents_labels(self, contents, labels):
+		arr_dataset = []
+		for i in xrange(len(contents)):
+			dr = Review(contents[i], labels[i])
+			arr_dataset.append(dr)
+
+		return self.dataset_from_array(arr_dataset)
 
 	def get_dataset_size(self):
 		return len(self.dataset)
@@ -129,6 +138,13 @@ class DatasetReview():
 			else:
 				return self
 
+	def split_to_ratio(self, ratio):
+		X_train, X_test, y_train, y_test = train_test_split(self.get_contents(), self.get_labels(), test_size=ratio)
+
+		dataset_train = self.dataset_from_contents_labels(X_train, y_train)
+		dataset_test = self.dataset_from_contents_labels(X_test, y_test)
+
+		return dataset_train, dataset_test
 
 def main(infile):
 	dataset = DatasetReview()
