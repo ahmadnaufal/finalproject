@@ -3,3 +3,4 @@ lib/*
 resource/*
 output/*
 *.pyc
+src/crawler/Review
