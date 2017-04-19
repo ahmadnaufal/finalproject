@@ -1,0 +1,4 @@
+from FeatureExtractor import FeatureExtractor
+from BagFeatureExtractor import BagFeatureExtractor
+from TfidfFeatureExtractor import TfidfFeatureExtractor
+from WordEmbeddingFeatureExtractor import WordEmbeddingFeatureExtractor

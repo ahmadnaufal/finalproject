@@ -1,6 +1,8 @@
 import gensim
 import numpy as np
 
+from collections import defaultdict
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
