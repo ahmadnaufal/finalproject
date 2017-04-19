@@ -1,5 +1,6 @@
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
+from sklearn.model_selection import cross_val_score
 
 from FeatureExtractor import FeatureExtractor
 from Classifier import Classifier
@@ -54,6 +55,28 @@ class Evaluator(object):
 
 		print "Evaluation method: Test set"
 		self.print_evaluation(fe_bag, test_labels, test_predictions)
+
+	def eval_with_cross_validation(self, training_set, num_fold=10):
+		training_contents = training_set.get_contents()
+		training_labels = training_set.get_labels()
+		fe_bag = FeatureExtractor(training_contents)
+
+		# BAG_OF_WORDS
+		fe_bag.build_bag()
+		training_features = fe_bag.extract_features(training_contents)
+
+		# start evaluating with cross validation and f1_score
+		scores = cross_val_score(self.model.classifier, training_features, training_labels, cv=num_fold, scoring='f1_macro')
+
+		print "Evaluation method: Cross Validation"
+		print "Number of Folds: %d" % (num_fold)
+		print "Using F1 Macro\n"
+
+		for i in xrange(0, len(scores)):
+			print "Iteration %d = %f" % (i + 1, scores[i])
+
+		print "Average score: %f" % (scores.mean())
+
 
 	def print_evaluation(self, feature_extractor, test_labels, test_predictions):
 		print "\n***** CLASSIFIER PROPERTIES *****"
