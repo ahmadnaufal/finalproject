@@ -77,7 +77,6 @@ class Evaluator(object):
 
 		print "Average score: %f" % (scores.mean())
 
-
 	def print_evaluation(self, feature_extractor, test_labels, test_predictions):
 		print "\n***** CLASSIFIER PROPERTIES *****"
 		print "Classifier model name: %s" % (self.model.get_classifier_type())
@@ -95,8 +94,6 @@ class Evaluator(object):
 		print "\n** EVALUATIONS **"
 		print "Accuracy score: %f" % (accuracy_score(test_labels, test_predictions))
 
-		pos_f1 = f1_score(test_labels, test_predictions, pos_label='positive')
-		neg_f1 = f1_score(test_labels, test_predictions, pos_label='negative')
 		print "F1 positive score: %f" % (f1_score(test_labels, test_predictions, pos_label='positive'))
 		print "F1 negative score: %f" % (f1_score(test_labels, test_predictions, pos_label='negative'))
-		print "Average F-measure: %f" % ((pos_f1 + neg_f1) / 2)
+		print "Average F-measure: %f" % (f1_score(test_labels, test_predictions, average='macro'))
