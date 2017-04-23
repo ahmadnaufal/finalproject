@@ -4,6 +4,7 @@ from sklearn import metrics
 
 from FeatureExtractor import FeatureExtractor
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
@@ -15,7 +16,7 @@ class Classifier(object):
 		if models == "multinomial":
 			self.classifier = MultinomialNB()
 		elif models == "svm":
-			self.classifier = SVC()
+			self.classifier = SVC(kernel='linear')
 
 	def classify(self, dataset):
 		contents = dataset.get_contents()
