@@ -1,5 +1,6 @@
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 
 from Classifier import Classifier
@@ -89,3 +90,11 @@ class Evaluator(object):
 		print "F1 positive score: %f" % (f1_score(test_labels, test_predictions, pos_label='positive'))
 		print "F1 negative score: %f" % (f1_score(test_labels, test_predictions, pos_label='negative'))
 		print "Average F-measure: %f" % (f1_score(test_labels, test_predictions, average='macro'))
+
+		# evaluate confusion matrix
+		cnf_matrix = confusion_matrix(test_labels, test_predictions, labels=['positive', 'negative'])
+		print "\nConfusion Matrix:"
+		print "\t\tPositive\tNegative (predicted labels)"
+		print "Positive\t%d\t\t%d" % (cnf_matrix[0][0], cnf_matrix[0][1])
+		print "Negative\t%d\t\t%d" % (cnf_matrix[1][0], cnf_matrix[1][1])
+		print "(actual labels)\n"
