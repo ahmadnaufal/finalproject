@@ -146,6 +146,13 @@ class DatasetReview():
 
 		return dataset_train, dataset_test
 
+	def export_only_contents(self, outfile):
+		with open(outfile, "wb") as ofile:
+			for data in self.dataset:
+				ofile.write(data.content + "\n")
+
+		return outfile
+
 def main(infile):
 	dataset = DatasetReview()
 	dataset.load_review_from_csv(infile)

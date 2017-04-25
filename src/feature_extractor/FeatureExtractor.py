@@ -9,3 +9,10 @@ class FeatureExtractor(object):
 
 	def get_feature_size(self):
 		return len(self.vectorizer.get_feature_names())
+
+	def save_vocab(self, outfile):
+		with open(outfile, "wb") as vocabfile:
+			for vocab in self.vectorizer.get_feature_names():
+				vocabfile.write(vocab + "\n")
+
+		return outfile

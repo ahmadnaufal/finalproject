@@ -11,6 +11,11 @@ class Preprocessor(object):
 
 	def remove_punctuations(self, sentence):
 		line_t = re.sub(r'[!@#$().,?":\';]', "", sentence)
+		line_t = re.sub(r'\\', " per ", line_t)
+		line_t = re.sub(r'/', " per ", line_t)
+		line_t = re.sub(r'&', " dan ", line_t)
+		line_t = re.sub(r'%', " persen ", line_t)
+		line_t = " ".join(line_t.split())
 		return line_t
 
 	def fold_cases(self, sentence):
