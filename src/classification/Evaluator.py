@@ -36,7 +36,7 @@ class Evaluator(object):
 		
 		# build training features
 		feature_extractor.build()
-		training_features = fe_bag.extract_features(training_contents)
+		training_features = feature_extractor.extract_features(training_contents)
 
 		# build training models
 		model.classify_raw(training_features, training_labels)
@@ -44,7 +44,7 @@ class Evaluator(object):
 		# start evaluating with test set
 		test_contents = test_set.get_contents()
 		test_labels = test_set.get_labels()
-		test_features = fe_bag.extract_features(test_contents)
+		test_features = feature_extractor.extract_features(test_contents)
 		test_predictions = model.test_raw(test_features)
 
 		print "Evaluation method: Test set"

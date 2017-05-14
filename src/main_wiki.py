@@ -12,11 +12,12 @@ from feature_extractor import SennaFeatureExtractor
 train_set = "../res/train_set/sample_train_set.csv"
 test_set = "../res/test_set/processed_test_set.csv"
 
-sswe_w2v = "../res/trains/reviews/sswe_w2v/vectors_full_wow.txt"
-sswe_senna_vectors = "../res/trains/reviews/sswe_senna/sswe_wow_vectors.txt"
-sswe_senna_vocabs = "../res/trains/reviews/sswe_senna/sswe_wow_vocab.txt"
+wiki_w2v_model = "../res/trains/wiki/w2v/wikipedia_w2v_indo_model.txt"
+sswe_w2v = "../res/trains/wiki/sswe_w2v/sswe_wikipedia_w2v_indo_model.txt"
+sswe_senna_vectors = "../res/trains/wiki/sswe_senna/vectors_full_wow.txt"
+sswe_senna_vocabs = "../res/trains/wiki/sswe_senna/vectors_full_wow.txt"
 
-def main():
+def main(infile):
 
 	# LOAD TRAIN SET
 	dataset_train = Dataset.DatasetReview()
@@ -39,7 +40,7 @@ def main():
 
 	# dataset.export_formatted_dataset("formatted_dataset_wow.tsv")
 
-	print "\n**** CROSS VALIDATION EVALUATION (CORPUS: DATASET) ****\n"
+	print "\n**** CROSS VALIDATION EVALUATION (CORPUS: WIKIPEDIA) ****\n"
 
 	fe = BagFeatureExtractor(dataset_train.get_contents())
 	classifier = Classifier(models="svm")
@@ -51,24 +52,53 @@ def main():
 	ev = Evaluator()
 	ev.eval_with_cross_validation(classifier, fe, dataset_train)
 
-	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), dimen=200)
-	# fe.save_model_to_file("vectors_full_wow.txt", vocabfile="vocab_full_wow.txt", binary=False)
-	classifier = Classifier(models="svm")
-	ev = Evaluator()
-	ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=200)
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=wiki_w2v_model, binary=False, dimen=200)
 	# fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
 	classifier = Classifier(models="svm")
 	ev = Evaluator()
 	ev.eval_with_cross_validation(classifier, fe, dataset_train)
 
-	fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs)
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile="vectors_full_wow.txt", binary=False, dimen=200)
+	# fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
 	classifier = Classifier(models="svm")
 	ev = Evaluator()
 	ev.eval_with_cross_validation(classifier, fe, dataset_train)
 
-	print "TEST SET EVALUATION (CORPUS: DATASET)"
+	fe = SennaFeatureExtractor(dataset_train.get_contents(), infile="../senna_vectors.txt", vocabfile="../senna_vocab.txt")
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_cross_validation(classifier, fe, dataset_train)
+
+	print "\n**** TRAINING SET EVALUATION (CORPUS: WIKIPEDIA) ****\n"
+
+	fe = BagFeatureExtractor(dataset_train.get_contents())
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_training_set(classifier, fe, dataset_train)
+
+	fe = TfidfFeatureExtractor(dataset_train.get_contents())
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_training_set(classifier, fe, dataset_train)
+
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=wiki_w2v_model, binary=False, dimen=200)
+	# fe.save_model_to_file("vectors_full_wow.txt", vocabfile="vocab_full_wow.txt", binary=False)
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_training_set(classifier, fe, dataset_train)
+
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile="vectors_full_wow.txt", binary=False, dimen=200)
+	# fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_training_set(classifier, fe, dataset_train)
+
+	fe = SennaFeatureExtractor(dataset_train.get_contents(), infile="../senna_vectors.txt", vocabfile="../senna_vocab.txt")
+	classifier = Classifier(models="svm")
+	ev = Evaluator()
+	ev.eval_with_training_set(classifier, fe, dataset_train)
+
+	print "TEST SET EVALUATION (CORPUS: WIKIPEDIA)"
 
 	fe = BagFeatureExtractor(dataset_train.get_contents())
 	classifier = Classifier(models="svm")
@@ -80,19 +110,19 @@ def main():
 	ev = Evaluator()
 	ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
 
-	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), dimen=200)
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=wiki_w2v_model, binary=False, dimen=200)
 	# fe.save_model_to_file("vectors_full_wow.txt", vocabfile="vocab_full_wow.txt", binary=False)
 	classifier = Classifier(models="svm")
 	ev = Evaluator()
 	ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
 
-	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=200)
+	fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile="vectors_full_wow.txt", binary=False, dimen=200)
 	# fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
 	classifier = Classifier(models="svm")
 	ev = Evaluator()
 	ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
 
-	fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs)
+	fe = SennaFeatureExtractor(dataset.get_contents(), infile="../senna_vectors.txt", vocabfile="../senna_vocab.txt")
 	classifier = Classifier(models="svm")
 	ev = Evaluator()
 	ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
@@ -120,4 +150,4 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1])

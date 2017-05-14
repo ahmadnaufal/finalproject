@@ -31,7 +31,7 @@ class WordEmbeddingFeatureExtractor(FeatureExtractor):
 
 	def save_model_to_file(self, outfile, vocabfile=None, binary=True):
 		sentences = SentenceIterator(self.dataset)
-		w2v = gensim.models.Word2Vec(sentences, size=self.dimen, min_count=1)
+		w2v = gensim.models.Word2Vec(sentences, size=self.dimen, min_count=1, sg=1)
 
 		w2v.save_word2vec_format(outfile, fvocab=vocabfile, binary=binary)
 
