@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Sentiment Classifier using SSWE</title>
+
+	{% for css_url in props['css'] %}
+	<link rel="stylesheet" href="{{ css_url }}" />
+	{% endfor %}
+</head>
+<body>
+	<div class="container">
+		<h1>Sentiment Classification</h1>
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="row">
+					<h4>Build Features</h4>
+					<div class="radio">
+						<label class="sp active"><input type="radio" name="feature" value="bow" checked> Bag of Words</label>
+					</div>
+					<div class="radio">
+						<label class="sp"><input type="radio" name="feature" value="tfidf"> Term Frequency - Inverse Document Frequency (TF-IDF)</label>
+					</div>
+					<div class="radio">
+						<label class="sp"><input type="radio" name="feature" value="w2v"> Word Embedding (Word2Vec)</label>
+					</div>
+					<div class="radio">
+						<label class="sp"><input type="radio" name="feature" value="senna"> Word Embedding (SENNA)</label>
+					</div>
+				</div>
+				<div class="row">
+					<h4>Evaluation Method</h4>
+					<div class="radio">
+						<label class="sp active">
+							<input type="radio" name="evaluation" value="bow" id="eval_test" checked> Test Set <input type="file" id="test_set" name="test_set" />
+						</label>
+					</div>
+					<div class="radio">
+						<label class="sp">
+							<input type="radio" name="evaluation" value="cv" id="eval_cv"> Cross Validation
+							<input type="number" name="cv_size" class="number-radio" disabled />
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-8">
+				
+			</div>
+		</div>
+	</div>
+
+	{% for js_url in props['js'] %}
+	<script src="{{ js_url }}"></script>
+	{% endfor %}
+</body>
+</html>
