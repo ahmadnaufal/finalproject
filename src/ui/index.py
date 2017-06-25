@@ -20,5 +20,22 @@ def index():
     return render_template("index.html", props=props)
 
 
+@app.route("/analyzer", methods=['GET'])
+def page_analyzer():
+    props = {
+        'css': [
+            url_for('static', filename='css/bootstrap.min.css'),
+            url_for('static', filename='css/style.css')
+        ],
+        'js': [
+            url_for('static', filename='js/jquery.min.js'),
+            url_for('static', filename='js/main.js'),
+            url_for('static', filename='js/bootstrap.min.js')
+        ]
+    }
+
+    return render_template("analyzer.html", props=props)
+
+
 if __name__ == '__main__':
     app.run()

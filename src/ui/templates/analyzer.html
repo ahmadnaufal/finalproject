@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Sentiment Classifier using SSWE</title>
+
+	{% for css_url in props['css'] %}
+	<link rel="stylesheet" href="{{ css_url }}" />
+	{% endfor %}
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">RVF</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Evaluate</a></li>
+				<li><a href="/analyzer">Analyze</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div class="container">
+		<h1>Sentiment Classification</h1>
+		<div class="row">
+			<form action="/evaluate" method="POST">
+				<div class="col-sm-4">
+					<div class="row">
+						<h4>Load Model</h4>
+						<input type="file" id="model" name="model" />
+						<button type="button" class="btn btn-primary">Upload</button>
+					</div>
+				</div>
+			</form>
+			<div class="col-sm-8">
+				
+			</div>
+		</div>
+	</div>
+
+	{% for js_url in props['js'] %}
+	<script src="{{ js_url }}"></script>
+	{% endfor %}
+</body>
+</html>

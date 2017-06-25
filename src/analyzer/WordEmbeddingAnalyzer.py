@@ -11,3 +11,6 @@ class WordEmbeddingAnalyzer(object):
 
     def most_similar(self, word):
         pass
+
+    def visualize(self):
+        pass
