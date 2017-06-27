@@ -8,7 +8,7 @@ sys.path.append("lib/ipostagger.jar")
 from IndonesianNLP import IndonesianPOSTagger
 from IndonesianNLP import IndonesianSentenceFormalization
 
-class IndonesianPreprocessorWithNLP():
+class IndonesianPreprocessorWithNLP(object):
 
     def __init__(self, infile):
         self.infile = infile

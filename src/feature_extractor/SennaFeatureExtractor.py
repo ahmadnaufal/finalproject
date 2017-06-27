@@ -9,10 +9,10 @@ from models.SentenceIterator import SentenceIterator
 class SennaFeatureExtractor(FeatureExtractor):
 	"""docstring for FeatureExtractor"""
 	def __init__(self, dataset, infile=None, vocabfile=None, binary=False, dimen=200):
-		super(SennaFeatureExtractor, self).__init__(dataset)
 		self.model_file = infile
 		self.vocab_file = vocabfile
 		self.binary = binary
+		self.dataset = dataset
 		self.dimen = dimen
 
 	def build(self):
@@ -32,7 +32,7 @@ class SennaFeatureExtractor(FeatureExtractor):
 			senna_dict = dict(zip(vocabs, models))
 			sentences = SentenceIterator(self.dataset)
 
-			self.vectorizer = WordEmbeddingVectorizer(senna_dict)
+			self.vectorizer = WordEmbeddingVectorizer(senna_dict, self.dimen)
 			self.vectorizer.fit(sentences)
 		else:
 			pass

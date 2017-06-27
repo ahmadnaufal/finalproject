@@ -2,11 +2,13 @@ import sys
 
 from sklearn import metrics
 
-from FeatureExtractor import FeatureExtractor
+from feature_extractor import FeatureExtractor
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+
 
 class Classifier(object):
 	"""docstring for Classifier"""
@@ -17,6 +19,10 @@ class Classifier(object):
 			self.classifier = MultinomialNB()
 		elif models == "svm":
 			self.classifier = SVC(kernel='linear')
+		elif models == "rfc":
+			self.classifier = RandomForestClassifier()
+		elif models == "nn":
+			self.classifier = MLPClassifier()
 
 	def classify(self, dataset):
 		contents = dataset.get_contents()
@@ -42,14 +48,13 @@ class Classifier(object):
 			return "Multinomial Naive-Bayes"
 		elif self.models == "svm":
 			return "Support Vector Machine"
+		elif self.models == "rfc":
+			return "Random Forest Classifier"
+		elif self.models == "nn":
+			return "Multilayer Perceptron (Neural Network)"
 		else:
 			return "Unknown classifier"
 
-	def do_evaluate(self, dataset_train, dataset_test):
-		predictions = self.test(test_set)
-		# accuracy_score = metrics.accuracy_score()
-		# count f1-score
-		# count accuracy
 
 def main(filename):
 	fe = FeatureExtractor("tfidf", filename)
