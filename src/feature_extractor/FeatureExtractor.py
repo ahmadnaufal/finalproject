@@ -1,8 +1,12 @@
 class FeatureExtractor(object):
 	"""docstring for FeatureExtractor"""
-	def __init__(self, dataset):
-		self.dataset = dataset
+	def __init__(self, dataset=None):
+		if dataset:
+			self.dataset = dataset
 		self.vectorizer = None
+
+	def set_dataset(self, dataset):
+		self.dataset = dataset
 
 	def extract_features(self, dataset):
 		return self.vectorizer.transform(dataset)

@@ -1,12 +1,11 @@
-import sys
-
 from models import Dataset
 from classification.Evaluator import Evaluator
 from classification.Classifier import Classifier
-from feature_extractor import BagFeatureExtractor
 from feature_extractor import TfidfFeatureExtractor
 from feature_extractor import WordEmbeddingFeatureExtractor
 from feature_extractor import SennaFeatureExtractor
+
+from sklearn.model_selection import KFold
 
 # DEFAULT PATHS
 train_set = "../new_res/2017-06-19/train_set.csv"
@@ -30,179 +29,31 @@ def main():
     dataset_test = Dataset.DatasetReview()
     dataset_test.load_review_from_csv(test_set)
 
-    # preprocessor = DatasetPreprocessor()
-    # dataset = preprocessor.fold_cases_d(dataset)
-    # dataset = preprocessor.remove_punctuations_d(dataset)
-    # dataset = preprocessor.convert_numbers_d(dataset)
+    fe_tfidf = TfidfFeatureExtractor(size=500)
+    fe_w2v = WordEmbeddingFeatureExtractor(infile=w2v_vec_path, binary=False, dimen=500)
+    fe_sswe_w2v = WordEmbeddingFeatureExtractor(infile=sswe_w2v, binary=False, dimen=500, sswe=1)
+    fe_sswe = SennaFeatureExtractor(infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
 
-    # dataset.export_only_contents("../Test/dataset.txt")
+    feature_extractors = [fe_tfidf, fe_w2v, fe_sswe_w2v, fe_sswe]
 
-    # fe = BagFeatureExtractor(dataset.get_contents())
-    # fe.build()
-    # fe.save_vocab("../Test/vocab.txt")
-
-    # dataset.export_formatted_dataset("formatted_dataset_wow.tsv")
+    ev = Evaluator()
 
     print "\n**** CROSS VALIDATION EVALUATION (CORPUS: DATASET) ****\n"
+    model = Classifier(models="nn")
 
-    # fe = BagFeatureExtractor(dataset_train.get_contents(), size=500)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
+    kfold = KFold(n_splits=10)
+    ev.eval_with_cross_validation(model, feature_extractors=feature_extractors,
+                                    training_set=dataset_train, num_fold=10, cv=kfold)
 
-    # fe = TfidfFeatureExtractor(dataset_train.get_contents(), size=500)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
+    model = Classifier(models="nn")
+    ev.create_evaluation_result(model, feature_extractors=feature_extractors,
+                                    training_set=dataset_train, num_fold=10, cv=kfold)
 
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = BagFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = TfidfFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = BagFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = TfidfFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_cross_validation(classifier, fe, dataset_train)
-
-    # print "TEST SET EVALUATION (CORPUS: DATASET)"
-
-    fe = BagFeatureExtractor(dataset_train.get_contents(), size=500)
-    classifier = Classifier(models="svm")
-    ev = Evaluator()
-    ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    fe = TfidfFeatureExtractor(dataset_train.get_contents(), size=500)
-    classifier = Classifier(models="svm")
-    ev = Evaluator()
-    ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    classifier = Classifier(models="svm")
-    ev = Evaluator()
-    ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="svm")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = BagFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = TfidfFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="rfc")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = BagFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = TfidfFeatureExtractor(dataset_train.get_contents())
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=w2v_vec_path, binary=False, dimen=500)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = WordEmbeddingFeatureExtractor(dataset_train.get_contents(), infile=sswe_w2v, binary=False, dimen=500, sswe=1)
-    # # fe.save_model_to_file("vectors_full.txt", vocabfile="vocab_full.txt", binary=False)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
-    # fe = SennaFeatureExtractor(dataset_train.get_contents(), infile=sswe_senna_vectors, vocabfile=sswe_senna_vocabs, dimen=500)
-    # classifier = Classifier(models="nn")
-    # ev = Evaluator()
-    # ev.eval_with_test_set(classifier, fe, dataset_train, dataset_test)
-
+    print "\n**** TEST SET EVALUATION (CORPUS: DATASET) ****\n"
+    model = Classifier(models="nn")
+    ev.eval_with_test_set(model, feature_extractors=feature_extractors,
+                            training_set=dataset_train,
+                            test_set=dataset_test)
 
 if __name__ == '__main__':
     main()

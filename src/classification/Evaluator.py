@@ -1,101 +1,180 @@
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, cross_val_predict
+from sklearn.model_selection import KFold
 
-from Classifier import Classifier
+import copy
+import csv
 
-from models import Dataset
+import numpy as np
+
+verbose_level = 0  # verbose level
+n_job = 3          # number of CPU used in evaluation
+seed = 7           # seed for our random state cross validation
 
 class Evaluator(object):
     """docstring for Evaluator"""
     def __init__(self):
         super(Evaluator, self).__init__()
 
-    def eval_with_training_set(self, model, feature_extractor, training_set):
-        # training_set must be type of Dataset
-        training_contents = training_set.get_contents()
-        training_labels = training_set.get_labels()
+    def eval_with_test_set(self, model, feature_extractors, training_set, test_set, outfile="results_test.csv"):
+        if not isinstance(feature_extractors, list):
+            return
 
-        # build features
-        feature_extractor.build()
-        training_features = feature_extractor.extract_features(training_contents)
-
-        # build training models
-        model.classify_raw(training_features, training_labels)
-
-        # start evaluating with training set
-        test_predictions = model.test_raw(training_features)
-
-        print "Evaluation method: Training set"
-        self.print_evaluation(model, feature_extractor, training_labels, test_predictions)
-
-    def eval_with_test_set(self, model, feature_extractor, training_set, test_set):
         training_contents = training_set.get_contents()
         training_labels = training_set.get_labels()
 
         # build training features
-        feature_extractor.build()
-        training_features = feature_extractor.extract_features(training_contents)
 
-        # build training models
-        model.classify_raw(training_features, training_labels)
+        # Print properties
+        print "Evaluation method: Test Set"
+        print "Classifier: %s" % (model.get_classifier_type())
 
-        # start evaluating with test set
         test_contents = test_set.get_contents()
         test_labels = test_set.get_labels()
-        test_features = feature_extractor.extract_features(test_contents)
-        test_predictions = model.test_raw(test_features)
 
-        print "Evaluation method: Test set"
-        self.print_evaluation(model, feature_extractor, test_labels, test_predictions)
+        field_names = ["id", "content", "polarity"]
+        fe_predictions = dict()
 
-    def eval_with_cross_validation(self, model, feature_extractor, training_set, num_fold=10):
+        for feature_extractor in feature_extractors:
+            fe = copy.copy(feature_extractor)
+            print "\nFeature Extractor: %s" % (fe.get_name())
+            field_names.append(fe.get_name())
+
+            # build our feature extractor from the training dataset contents
+            fe.set_dataset(training_contents)
+            fe.build()
+            training_features = fe.extract_features(training_contents)
+
+            # build features for our test dataset
+            test_features = fe.extract_existing_features(test_contents)
+
+            # build training models
+            model.classify_raw(training_features, training_labels)
+
+            # start evaluating with test set
+            test_predictions = model.test_raw(test_features)
+            fe_predictions[fe.get_name()] = test_predictions
+
+            # evaluate confusion matrix
+            cnf_matrix = confusion_matrix(test_labels, test_predictions,
+                                            labels=['positive', 'negative'])
+
+            print "Average F-measure: %f" % (f1_score(test_labels, test_predictions, average='macro'))
+
+            print "\nConfusion Matrix:"
+            print "\t\tPositive\tNegative (predicted labels)"
+            print "Positive\t%d\t\t%d" % (cnf_matrix[0][0], cnf_matrix[0][1])
+            print "Negative\t%d\t\t%d" % (cnf_matrix[1][0], cnf_matrix[1][1])
+            print "(actual labels)\n"
+
+        with open(outfile, "wb") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            writer.writeheader()
+            for i in xrange(len(test_contents)):
+                row = {
+                    'id': i + 1,
+                    'content': test_contents[i],
+                    'polarity': test_labels[i],
+                }
+                # append results
+                for j in xrange(len(feature_extractors)):
+                    row[feature_extractors[j].get_name()] = fe_predictions[feature_extractors[j].get_name()][i]
+
+                writer.writerow(row)
+
+    def eval_with_cross_validation(self, model, feature_extractors, training_set, num_fold=10, cv=None):
+        if not isinstance(feature_extractors, list):
+            return
+
+        # if model
         training_contents = training_set.get_contents()
         training_labels = training_set.get_labels()
 
-        # build training features
-        feature_extractor.build()
-        training_features = feature_extractor.extract_features(training_contents)
-
-        # start evaluating with cross validation and f1_score
-        scores = cross_val_score(model.classifier, training_features, training_labels, cv=num_fold, scoring='f1_macro')
-
+        # Print properties
         print "Evaluation method: Cross Validation"
         print "Number of Folds: %d" % (num_fold)
         print "Classifier: %s" % (model.get_classifier_type())
-        print "Feature Extractor: %s" % (feature_extractor.get_name())  
 
-        for i in xrange(0, len(scores)):
-            print "Iteration %d = %f" % (i + 1, scores[i])
+        if not cv:
+            kfold = KFold(n_splits=num_fold, random_state=seed)
+        else:
+            kfold = cv
 
-        print "Average score: %f" % (scores.mean())
+        for feature_extractor in feature_extractors:
+            fe = copy.copy(feature_extractor)
+            print "\nFeature Extractor: %s" % (fe.get_name())
 
-    def print_evaluation(self, model, feature_extractor, test_labels, test_predictions):
-        print "\n***** CLASSIFIER PROPERTIES *****"
-        print "Classifier model name: %s" % (model.get_classifier_type())
-        print "Feature Extractor: %s" % (feature_extractor.get_name())
+            # build our feature extractor from the dataset contents
+            fe.set_dataset(training_contents)
+            fe.build()
+            training_features = fe.extract_features(training_contents)
 
-        print "\n***** TEST SET PROPERTIES *****"
-        print "Total Size: %d" % (len(test_labels))
-        print "Positive instances: %d" % (sum([1 for x in test_labels if x == 'positive']))
-        print "Negative instances: %d" % (sum([1 for x in test_labels if x == 'negative']))
+            # obtain our classification results
+            # measure is done by using macro F1 score
+            scores = cross_val_score(model.classifier, X=training_features,
+                                    y=training_labels, cv=kfold, n_jobs=n_job,
+                                    scoring='f1_macro', verbose=verbose_level)
 
-        print "\n***** PREDICTED LABELS PROPERTIES *****"
-        print "Predicted positive instances: %d" % (sum([1 for x in test_predictions if x == 'positive']))
-        print "Predicted negative instances: %d" % (sum([1 for x in test_predictions if x == 'negative']))
+            # print each of the iteration scroe
+            for i in xrange(0, len(scores)):
+                print "Iteration %d = %f" % (i + 1, scores[i])
 
-        print "\n** EVALUATIONS **"
-        print "Accuracy score: %f" % (accuracy_score(test_labels, test_predictions))
+            print "Average score: %f" % (scores.mean())
+            print "Standard Deviation: %f" % (scores.std())
+            print "Maximum F1-score: %f" % (np.amax(scores))
 
-        print "F1 positive score: %f" % (f1_score(test_labels, test_predictions, pos_label='positive'))
-        print "F1 negative score: %f" % (f1_score(test_labels, test_predictions, pos_label='negative'))
-        print "Average F-measure: %f" % (f1_score(test_labels, test_predictions, average='macro'))
+    def create_evaluation_result(self, model, feature_extractors, training_set, num_fold=10, outfile="results_cv.csv", cv=None):
+        if not isinstance(feature_extractors, list):
+            return
 
-        # evaluate confusion matrix
-        cnf_matrix = confusion_matrix(test_labels, test_predictions, labels=['positive', 'negative'])
-        print "\nConfusion Matrix:"
-        print "\t\tPositive\tNegative (predicted labels)"
-        print "Positive\t%d\t\t%d" % (cnf_matrix[0][0], cnf_matrix[0][1])
-        print "Negative\t%d\t\t%d" % (cnf_matrix[1][0], cnf_matrix[1][1])
-        print "(actual labels)\n"
+        # if model
+        training_contents = training_set.get_contents()
+        training_labels = training_set.get_labels()
+
+        # Print properties
+        print "Evaluation method: Cross Validation"
+        print "Number of Folds: %d" % (num_fold)
+        print "Classifier: %s" % (model.get_classifier_type())
+
+        field_names = ["id", "content", "polarity"]
+        fe_predictions = dict()
+
+        if not cv:
+            kfold = KFold(n_splits=num_fold, random_state=seed)
+        else:
+            kfold = cv
+
+        for feature_extractor in feature_extractors:
+            fe = copy.copy(feature_extractor)
+            field_names.append(fe.get_name())
+
+            # build our feature extractor from the dataset contents
+            fe.set_dataset(training_contents)
+            fe.build()
+            training_features = fe.extract_features(training_contents)
+
+            # obtain our classification results
+            # measure is done by using macro F1 score
+            predictions = cross_val_predict(model.classifier, X=training_features,
+                                            y=training_labels, cv=kfold, n_jobs=n_job,
+                                            verbose=verbose_level)
+            fe_predictions[fe.get_name()] = predictions
+
+        with open(outfile, "wb") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            writer.writeheader()
+            for i in xrange(len(training_contents)):
+                row = {
+                    'id': i + 1,
+                    'content': training_contents[i],
+                    'polarity': training_labels[i],
+                }
+                # append results
+                for j in xrange(len(feature_extractors)):
+                    row[feature_extractors[j].get_name()] = fe_predictions[feature_extractors[j].get_name()][i]
+
+                writer.writerow(row)
+
+        return outfile

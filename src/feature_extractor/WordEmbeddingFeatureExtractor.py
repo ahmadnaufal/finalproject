@@ -8,7 +8,7 @@ from models.SentenceIterator import SentenceIterator
 
 class WordEmbeddingFeatureExtractor(FeatureExtractor):
     """docstring for FeatureExtractor"""
-    def __init__(self, dataset, infile=None, binary=False, dimen=100, sswe=0):
+    def __init__(self, dataset=None, infile=None, binary=False, dimen=100, sswe=0):
         super(WordEmbeddingFeatureExtractor, self).__init__(dataset)
         self.model_file = infile
         self.binary = binary
@@ -32,6 +32,9 @@ class WordEmbeddingFeatureExtractor(FeatureExtractor):
         self.vectorizer.fit(sentences)
 
         return self
+
+    def extract_existing_features(self, dataset):
+        return super(WordEmbeddingFeatureExtractor, self).extract_features(dataset)
 
     def save_model_to_file(self, outfile, vocabfile=None, binary=True):
         sentences = SentenceIterator(self.dataset)
